@@ -3,17 +3,18 @@
  Celery to handle the AI traders in the background.  
  This prevents the website from freezing while a "trader" is thinking or negotiating.  
  
- ## The simplified architecture and code structure.
+### The simplified architecture and code structure.
 1. The Stack
 
-    Django: Manages users, tokens, and the marketplace database.  
-    Celery: A task queue that runs the "AI Trader" logic in the background.  
-    Redis: The "postman" that delivers tasks from Django to Celery.  
-    Nebius AI Studio: The brain (Llama 3.1 8B) accessed via API.
+    - Django: Manages users, tokens, and the marketplace database.
+    - PostgreSQL PostgreSQL with the pgvector extension. This allows AI traders to "search" the market efficiently using embeddings (mathematical meanings of words) rather than just keyword searches.
+    - Celery: A task queue that runs the "AI Trader" logic in the background.  
+    - Redis: The "postman" that delivers tasks from Django to Celery.  
+    - Nebius AI Studio: The brain (Llama 3.1 8B) accessed via API.
    
 3. The Database Structure (models.py)  
 I need to link the user's "Internal Token" balance to their AI Trader's "Search" instructions.
-```
+```ruby
 from django.db import models
 from django.contrib.auth.models import User
 
@@ -33,3 +34,15 @@ class TraderTask(models.Model):
     max_price = models.DecimalField(max_digits=10, decimal_places=2)
     status = models.CharField(max_length=20, default='searching') # searching, negotiating, completed
 ```
+4. Why this saves you money  
+
+    1. Pay-per-use: I only pay Nebius a few fractions of a penny when run_virtual_trader actually runs.  
+    2. Concurrency: Celery can run 10 or 100 of these "traders" at the exact same time on a cheap $10/month VM.  
+    3. Stability: If the AI API is slow or down, my main Django website remains 100% functional for the user.  
+
+### Next Steps for my DevOps Plan:  
+
+    1. Dockerize this setup (one container for Django, one for Celery, one for Redis).  
+    2. Deploy to a small Nebius VM (Ubuntu) using docker-compose.  
+    3. Apply for the Startup Credits to cover the VM and API costs for the first year.  
+
