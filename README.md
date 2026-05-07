@@ -6,8 +6,8 @@
 ### The simplified architecture and code structure.
 1. The Stack
 
-    - Django: Manages users, tokens, and the marketplace database.
-    - PostgreSQL with the pgvector extension. This allows AI traders to "search" the market efficiently using embeddings (mathematical meanings of words) rather than just keyword searches.
+    - Django: Manages users, tokens, and the marketplace database. It handles tokenisation of the trading for now. 
+    - PostgreSQL with the pgvector extension. It is open-source vector similarity search for Postgres. This allows AI traders to "search" the market efficiently using embeddings (mathematical meanings of words) rather than just keyword searches.
     - GraphQL API
     - Celery: A task queue that runs the "AI Trader" logic in the background.  
     - Redis: The "postman" that delivers tasks from Django to Celery.
